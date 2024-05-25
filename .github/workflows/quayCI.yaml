@@ -17,7 +17,7 @@ jobs:
       id: build-image
       uses: redhat-actions/buildah-build@v2
       with:
-        image: fastapi-webhook
+        image: fastapi-webhook-receiver
         tags: latest ${{ github.sha }}
         containerfiles: |
           ./Dockerfile
