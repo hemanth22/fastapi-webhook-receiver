@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException
-from fastapi import Request
+from fastapi import FastAPI, HTTPException # type: ignore
+from fastapi import Request # type: ignore
 
 app = FastAPI()
 
