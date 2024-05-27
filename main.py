@@ -1,20 +1,23 @@
-from fastapi import FastAPI, Request
-from pydantic import BaseModel
-import json
+from fastapi import FastAPI, HTTPException
+from fastapi import Request
 
 app = FastAPI()
 
-class WebhookPayload(BaseModel):
-    # Define the expected structure of your webhook payload here.
-    # Example fields:
-    event: str
-    data: dict
-
 @app.post("/webhook")
-async def handle_webhook(payload: WebhookPayload):
-    # Log the payload or perform any processing you need
-    print("Received webhook event:", payload.event)
-    print("Payload data:", json.dumps(payload.data, indent=2))
+async def webhook(request: Request):
+    content_type = request.headers.get("Content-Type")
 
-    # Return a response
-    return {"message": "Webhook received successfully"}
+    if content_type == "application/json":
+        # Handle JSON payload
+        payload = await request.json()
+        print("Webhook received (JSON):", payload)
+        # Handle the JSON payload as needed
+    elif content_type == "application/x-www-form-urlencoded":
+        # Handle form data
+        form_data = await request.form()
+        print("Webhook received (Form data):", form_data)
+        # Handle the form data as needed
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported content type")
+
+    return {"status": "Webhook received successfully"}
