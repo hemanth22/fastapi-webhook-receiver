@@ -1,43 +1,20 @@
-from fastapi import FastAPI, HTTPException # type: ignore
-from fastapi import Request # type: ignore
+from fastapi import FastAPI, Request
+from pydantic import BaseModel
 import json
 
 app = FastAPI()
 
+class WebhookPayload(BaseModel):
+    # Define the expected structure of your webhook payload here.
+    # Example fields:
+    event: str
+    data: dict
+
 @app.post("/webhook")
-async def webhook(request: Request):
-    content_type = request.headers.get("Content-Type")
+async def handle_webhook(payload: WebhookPayload):
+    # Log the payload or perform any processing you need
+    print("Received webhook event:", payload.event)
+    print("Payload data:", json.dumps(payload.data, indent=2))
 
-    if content_type == "application/json":
-        # Handle JSON payload
-        payload = await request.json()
-        print("Webhook received (JSON):", payload)
-        global last_item
-        last_item = payload
-        # Handle the JSON payload as needed
-    elif content_type == "application/x-www-form-urlencoded":
-        # Handle form data
-        form_data = await request.form()
-        print("Webhook received (Form data):", form_data)
-        # Handle the form data as needed
-    else:
-        raise HTTPException(status_code=400, detail="Unsupported content type")
-
-    return {"status": "Webhook received successfully"}
-
-@app.post("/incomng")
-async def get_last_incoming():
-    # Parse the JSON message
-    data_incoming = json.loads(last_item)
-    source = data_incoming.get('source')
-    message = data_incoming.get('message', 'there is an alert')
-    if source:
-        outmessage = f"Command Center, {message}, reported by {source}"
-    else:
-        outmessage = f"Command Center, {message}"
-
-    if last_item is None:
-        return {"message": "No items have been posted yet."}
-    return {
-        "incoming_message": "outmessage"
-    }
+    # Return a response
+    return {"message": "Webhook received successfully"}
