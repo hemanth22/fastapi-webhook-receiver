@@ -1,7 +1,9 @@
 name: quay deployment
 on:
   push:
-    branches: [ releasev1 ]
+    branches: [ releasev* ]
+    branches-ignore:
+      - 'main'
   pull_request:
     branches: [ main ]
 
