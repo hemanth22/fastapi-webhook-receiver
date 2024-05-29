@@ -1,7 +1,7 @@
 name: quay deployment
 on:
   push:
-    branches: [ main ]
+    branches: [ releasev1 ]
   pull_request:
     branches: [ main ]
 
@@ -18,7 +18,7 @@ jobs:
       uses: redhat-actions/buildah-build@v2
       with:
         image: fastapi-webhook-receiver
-        tags: latest ${{ github.sha }} v2
+        tags: latest ${{ github.sha }} ${{ github.sha }}
         containerfiles: |
           ./Dockerfile
 
