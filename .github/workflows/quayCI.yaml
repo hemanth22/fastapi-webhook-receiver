@@ -20,7 +20,7 @@ jobs:
       uses: redhat-actions/buildah-build@v2
       with:
         image: fastapi-webhook-receiver
-        tags: latest ${{ github.sha }} ${{ github.ref_name }}
+        tags: ${{ github.sha }} ${{ github.ref_name }}
         containerfiles: |
           ./Dockerfile
 
