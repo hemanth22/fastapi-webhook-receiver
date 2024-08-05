@@ -13,11 +13,11 @@ async def webhook(request: Request):
         payload = await request.json()
         print("Webhook received (JSON):", payload)
         #source = payload["source"]
-        source = data.get("source", "Unknown source")
+        source = payload.get("source", "Unknown source")
         #message = payload["message"]
-        message = data.get("message", "No message")
-        #incident_detected = data["incident"]["detector"]["display_name"]
-        incident = data.get("incident", {})
+        message = payload.get("message", "No message")
+        #incident_detected = payload["incident"]["detector"]["display_name"]
+        incident = payload.get("incident", {})
         detector = incident.get("detector", None)
         if detector and isinstance(detector, dict):
             display_name = detector.get("display_name", "Policy Break")
