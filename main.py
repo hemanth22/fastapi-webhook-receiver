@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi import Request
 from fastapi.responses import JSONResponse
 import os
+import requests
 
 BOT_TOKEN = os.environ.get('telegram_api_key')
 CHAT_ID = os.environ.get('telegram_id')
