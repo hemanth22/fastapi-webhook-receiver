@@ -1,6 +1,61 @@
 from fastapi import FastAPI, HTTPException
 from fastapi import Request
 from fastapi.responses import JSONResponse
+import os
+
+BOT_TOKEN = os.environ.get('telegram_api_key')
+CHAT_ID = os.environ.get('telegram_id')
+url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
+def gitGuardianAlert(source,display_name,message):
+    # Define the message format
+    formatted_message = f"""
+    System Alert: Incident Update
+    Message from {source}:
+    {message}
+    Type of Secret Leak: {display_name}
+    Reported by: {source}
+    """
+    # Define the payload
+    payload_gitguardian = {
+        'chat_id': CHAT_ID,
+        'text': formatted_message,
+        'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
+        }
+    
+    # Send the message
+    response = requests.post(url, data=payload_gitguardian)
+    # Check for successful response
+    if response.status_code == 200:
+        return "Message sent successfully."
+    else:
+        return f"Failed to send message. Status code: {response.status_code}"
+        return f"Response: {response.text}"
+
+
+def customMessage(source,message):
+    # Define the message format
+    formatted_message = f"""
+    System Alert: Information
+    Message from {source}:
+    {message}
+    Reported by: {source}
+    """
+    # Define the payload
+    payload_custom = {
+        'chat_id': CHAT_ID,
+        'text': formatted_message,
+        'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
+        }
+    
+    # Send the message
+    response = requests.post(url, data=payload_custom)
+    # Check for successful response
+    if response.status_code == 200:
+        return "Message sent successfully."
+    else:
+        return f"Failed to send message. Status code: {response.status_code}"
+        return f"Response: {response.text}"
 
 app = FastAPI()
 
@@ -26,14 +81,19 @@ async def webhook(request: Request):
             
         global CommandCenterResponse
         #CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
+
+        
         if display_name != "Policy Break":
             CommandCenterResponse = f"A message from Command Center, {message} and type of secret leak is {display_name} reported by {source}"
+            gitGuardianAlert(source,display_name,message)
 
         if display_name == "Policy Break":
             CommandCenterResponse = f"A message from Command Center, {message} and {display_name} detected, reported by {source}"
+            gitGuardianAlert(source,display_name,message)
 
         if source == "circleci":
             CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
+            customMessage(source,message)
 
         print(CommandCenterResponse)
         # Handle the JSON payload as needed
