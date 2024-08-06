@@ -83,11 +83,11 @@ async def webhook(request: Request):
         #CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
 
         
-        if display_name != "Policy Break":
+        if display_name != "Policy Break" and source == "GitGuardian":
             CommandCenterResponse = f"A message from Command Center, {message} and type of secret leak is {display_name} reported by {source}"
             gitGuardianAlert(source,display_name,message)
 
-        if display_name == "Policy Break":
+        if display_name == "Policy Break" and source == "GitGuardian":
             CommandCenterResponse = f"A message from Command Center, {message} and {display_name} detected, reported by {source}"
             gitGuardianAlert(source,display_name,message)
 
