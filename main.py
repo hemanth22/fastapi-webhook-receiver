@@ -96,6 +96,10 @@ async def webhook(request: Request):
             CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
             customMessage(source,message)
 
+        if display_name != "Policy Break" and source != "GitGuardian" and source != "circleci"
+            CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
+            customMessage(source,message)
+
         print(CommandCenterResponse)
         # Handle the JSON payload as needed
     elif content_type == "application/x-www-form-urlencoded":
