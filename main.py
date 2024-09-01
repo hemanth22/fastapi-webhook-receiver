@@ -96,7 +96,7 @@ async def webhook(request: Request):
             CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
             customMessage(source,message)
 
-        if display_name != "Policy Break" and source != "GitGuardian" and source != "circleci":
+        if source == "github" and display_name != "Policy Break" and source != "GitGuardian" and source != "circleci":
             CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
             customMessage(source,message)
 
