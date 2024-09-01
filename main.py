@@ -47,9 +47,9 @@ def newsAlert(source, message):
     formatted_message = f"""
     System Alert: Information
     Message from {source}:
-    {message['title']}
-    {message['description']}
-    {message['source_id']}
+    Title: {message['title']}
+    Description: {message['description']}
+    Source of news: {message['source_id']}
     Reported by: {source}
     """
 
