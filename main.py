@@ -42,6 +42,17 @@ def customMessage(source,message):
     {message}
     Reported by: {source}
     """
+
+def newsAlert(source, message):
+    formatted_message = f"""
+    System Alert: Information
+    Message from {source}:
+    {message['title']}
+    {message['description']}
+    {message['source_id']}
+    Reported by: {source}
+    """
+
     # Define the payload
     payload_custom = {
         'chat_id': CHAT_ID,
@@ -99,6 +110,10 @@ async def webhook(request: Request):
         if source == "github":
             CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
             customMessage(source,message)
+
+        if source == "news":
+            CommandCenterResponse = f"A message from Command Center, news reported by {source}"
+            newsAlert(source, message)
 
         print(CommandCenterResponse)
         # Handle the JSON payload as needed
