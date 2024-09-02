@@ -50,6 +50,7 @@ def newsAlert(source, message):
     Title: {message['title']}
     Description: {message['description']}
     Source of news: {message['source_id']}
+    Published Date: {message['pubDate']}
     Reported by: {source}
     """
 
