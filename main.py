@@ -42,6 +42,21 @@ def customMessage(source,message):
     {message}
     Reported by: {source}
     """
+    # Define the payload
+    payload_gitguardian = {
+        'chat_id': CHAT_ID,
+        'text': formatted_message,
+        'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
+        }
+    
+    # Send the message
+    response = requests.post(url, data=payload_gitguardian)
+    # Check for successful response
+    if response.status_code == 200:
+        return "Message sent successfully."
+    else:
+        return f"Failed to send message. Status code: {response.status_code}"
+        return f"Response: {response.text}"
 
 def newsAlert(source, message):
     formatted_message = f"""
