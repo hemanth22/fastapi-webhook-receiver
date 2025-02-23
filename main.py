@@ -15,6 +15,7 @@ def gitGuardianAlert(source,display_name,message):
     Message from {source}:
     {message}
     Type of Secret Leak: {display_name}
+    Incident Reference: {gitguardian_url}
     Reported by: {source}
     """
     # Define the payload
@@ -101,6 +102,7 @@ async def webhook(request: Request):
         message = payload.get("message", "No message")
         #incident_detected = payload["incident"]["detector"]["display_name"]
         incident = payload.get("incident", {})
+        gitguardian_url = incident.get("gitguardian_url", "Missing url")
         detector = incident.get("detector", None)
         if detector and isinstance(detector, dict):
             display_name = detector.get("display_name", "Policy Break")
