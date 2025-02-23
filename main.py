@@ -8,7 +8,7 @@ BOT_TOKEN = os.environ.get('telegram_api_key')
 CHAT_ID = os.environ.get('telegram_id')
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
-def gitGuardianAlert(source,display_name,message):
+def gitGuardianAlert(source,display_name,message,gitguardian_url):
     # Define the message format
     formatted_message = f"""
     System Alert: Incident Update
@@ -115,11 +115,11 @@ async def webhook(request: Request):
         
         if display_name != "Policy Break" and source == "GitGuardian":
             CommandCenterResponse = f"A message from Command Center, {message} and type of secret leak is {display_name} reported by {source}"
-            gitGuardianAlert(source,display_name,message)
+            gitGuardianAlert(source,display_name,message,gitguardian_url)
 
         if display_name == "Policy Break" and source == "GitGuardian":
             CommandCenterResponse = f"A message from Command Center, {message} and {display_name} detected, reported by {source}"
-            gitGuardianAlert(source,display_name,message)
+            gitGuardianAlert(source,display_name,message,gitguardian_url)
 
         if source == "circleci":
             CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
