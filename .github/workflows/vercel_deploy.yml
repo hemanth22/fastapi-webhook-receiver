@@ -2,7 +2,7 @@ name: Deploy to Vercel
 on:
   push:
     branches:
-      - 'releasev9'
+      - 'releasev10'
       - '!main'
   pull_request:
     branches: [ main ]
