@@ -1,8 +1,32 @@
-from fastapi import FastAPI, HTTPException
-from fastapi import Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from datetime import date
+import asyncpg
 import os
-import requests
+
+POSTGRES_USER = os.environ.get('postgres_user')
+POSTFRES_PASSWORD = os.environ.get('postgres_password')
+POSTFRES_DBNAME = os.environ.get('postgres_db')
+POSTFRES_HOSTNAME = os.environ.get('postgres_host')
+POSTFRES_PORT = os.environ.get('postgres_port')
+
+DB_CONFIG = {
+    "user": POSTGRES_USER,
+    "password": POSTFRES_PASSWORD,
+    "database": POSTFRES_DBNAME,
+    "host": POSTFRES_HOSTNAME,
+    "port": POSTFRES_PORT
+}
+
+async def call_insert_remainder(p_date: str, p_message: str):
+    conn = await asyncpg.connect(**DB_CONFIG)
+    try:
+        await conn.execute("SELECT insert_remainder($1, $2);", p_date, p_message)
+    finally:
+        await conn.close()
+
 
 BOT_TOKEN = os.environ.get('telegram_api_key')
 CHAT_ID = os.environ.get('telegram_id')
@@ -86,7 +110,29 @@ def newsAlert(source, message):
         return f"Failed to send message. Status code: {response.status_code}"
         return f"Response: {response.text}"
 
+
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/", response_class=HTMLResponse)
+async def read_form(request: Request):
+    return templates.TemplateResponse("form.html", {"request": request})
+
+@app.post("/submit", response_class=HTMLResponse)
+async def handle_form(
+    request: Request,
+    date_input: date = Form(...),
+    message: str = Form(...)
+):
+    formatted_date = date_input.strftime("%d-%m-%Y")
+    await call_insert_remainder(formatted_date, message)
+    return templates.TemplateResponse("form.html", {
+        "request": request,
+        "submitted": True,
+        "date_input": date_input,
+        "message": message
+    })
+
 
 @app.post("/webhook")
 async def webhook(request: Request):
@@ -111,7 +157,6 @@ async def webhook(request: Request):
             
         global CommandCenterResponse
         #CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
-
         
         if display_name != "Policy Break" and source == "GitGuardian":
             CommandCenterResponse = f"A message from Command Center, {message} and type of secret leak is {display_name} reported by {source}"
