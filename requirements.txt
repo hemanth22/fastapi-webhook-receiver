@@ -4,3 +4,4 @@ gunicorn
 python-multipart
 asyncpg
 jinja2
+requests

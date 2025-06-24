@@ -1,10 +1,12 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from datetime import date
 import asyncpg
 import os
+import requests
 
 POSTGRES_USER = os.environ.get('postgres_user')
 POSTFRES_PASSWORD = os.environ.get('postgres_password')
