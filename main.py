@@ -35,6 +35,31 @@ CHAT_ID = os.environ.get('telegram_id')
 CHANNEL_CHAT_ID = '-1003097875450'
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
+def newsapistore(data):
+    formatted_message = (
+    f"Source: {data['source']}\n"
+    f"Title: {data['title']}\n"
+    f"Description: {data['description']}\n"
+    f"Url: {data['url']}\n"
+    f"Publish: {data['publishedTime']}\n"
+    f"SourceName: {data['sourcename']}\n"
+    f"Author: {data['author']}"
+    )
+    payload_newsapistore = {
+        'chat_id': CHANNEL_CHAT_ID,
+        'text': formatted_message,
+        'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
+        }
+
+    # Send the message
+    response = requests.post(url, data=payload_newsapistore)
+    # Check for successful response
+    if response.status_code == 200:
+        return "Message sent successfully."
+    else:
+        return f"Failed to send message. Status code: {response.status_code}"
+        return f"Response: {response.text}"
+
 
 def mvetfstore(data):
     formatted_message = (
@@ -263,7 +288,7 @@ async def etfwebhook(request: Request):
         print("Webhook received (JSON):", payload)
         etfstore(payload)
     if content_type != "application/json":
-        print("Received Invalid Dat", payload)
+        print("Received Invalid Data", payload)
 
 @app.post("/mvetfwebhook")
 async def mvetfwebhook(request: Request):
@@ -273,5 +298,14 @@ async def mvetfwebhook(request: Request):
         print("Webhook received (JSON):", payload)
         mvetfstore(payload)
     if content_type != "application/json":
-        print("Received Invalid Dat", payload)
+        print("Received Invalid Data", payload)
 
+@app.post("/newsapiwebhook")
+async def newsapiwebhook(request: Request):
+    content_type = request.headers.get("Content-Type")
+    if content_type == "application/json":
+        payload = await request.json()
+        print("Webhook received (JSON):", payload)
+        newsapistore(payload)
+    if content_type != "application/json":
+        print("Received Invalid Data", payload)
