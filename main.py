@@ -32,6 +32,7 @@ async def call_insert_remainder(p_date: str, p_message: str):
 
 BOT_TOKEN = os.environ.get('telegram_api_key')
 CHAT_ID = os.environ.get('telegram_id')
+CHANNEL_CHAT_ID = '-1003097875450'
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
 
@@ -50,7 +51,7 @@ def mvetfstore(data):
     f"NAV: {data['nav']}"
     )
     payload_mveftstore = {
-        'chat_id': CHAT_ID,
+        'chat_id': CHANNEL_CHAT_ID,
         'text': formatted_message,
         'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
         }
@@ -76,7 +77,7 @@ def etfstore(data):
     f"Company Name: {data['company_name']}"
     )
     payload_eftstore = {
-        'chat_id': CHAT_ID,
+        'chat_id': CHANNEL_CHAT_ID,
         'text': formatted_message,
         'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
         }
@@ -273,3 +274,4 @@ async def mvetfwebhook(request: Request):
         mvetfstore(payload)
     if content_type != "application/json":
         print("Received Invalid Dat", payload)
+
