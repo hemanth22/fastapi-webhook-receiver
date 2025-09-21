@@ -34,6 +34,34 @@ BOT_TOKEN = os.environ.get('telegram_api_key')
 CHAT_ID = os.environ.get('telegram_id')
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
+def etfstore(data):
+    formatted_message = (
+    f"Symbol: {data['symbol']}\n"
+    f"Asset Name: {data['assetName']}\n"
+    f"Open Value: {data['OPENVALUE']}\n"
+    f"High Value: {data['HIGHVALUE']}\n"
+    f"Low Value: {data['LOWVALUE']}\n"
+    f"Traded Volume: {data['tradedVolume']}\n"
+    f"Traded Value: {data['tradedValue']}\n"
+    f"Company Name: {data['company_name']}"
+    )
+    payload_eftstore = {
+        'chat_id': CHAT_ID,
+        'text': formatted_message,
+        'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
+        }
+
+    # Send the message
+    response = requests.post(url, data=payload_eftstore)
+    # Check for successful response
+    if response.status_code == 200:
+        return "Message sent successfully."
+    else:
+        return f"Failed to send message. Status code: {response.status_code}"
+        return f"Response: {response.text}"
+
+
+
 def gitGuardianAlert(source,display_name,message,gitguardian_url):
     # Define the message format
     formatted_message = f"""
@@ -50,7 +78,7 @@ def gitGuardianAlert(source,display_name,message,gitguardian_url):
         'text': formatted_message,
         'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
         }
-    
+
     # Send the message
     response = requests.post(url, data=payload_gitguardian)
     # Check for successful response
@@ -75,7 +103,7 @@ def customMessage(source,message):
         'text': formatted_message,
         'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
         }
-    
+
     # Send the message
     response = requests.post(url, data=payload_gitguardian)
     # Check for successful response
@@ -102,7 +130,7 @@ def newsAlert(source, message):
         'text': formatted_message,
         'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
         }
-    
+
     # Send the message
     response = requests.post(url, data=payload_custom)
     # Check for successful response
@@ -156,10 +184,10 @@ async def webhook(request: Request):
             display_name = detector.get("display_name", "Policy Break")
         else:
             display_name = "Policy Break"
-            
+
         global CommandCenterResponse
         #CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
-        
+
         if display_name != "Policy Break" and source == "GitGuardian":
             CommandCenterResponse = f"A message from Command Center, {message} and type of secret leak is {display_name} reported by {source}"
             gitGuardianAlert(source,display_name,message,gitguardian_url)
@@ -195,3 +223,13 @@ async def webhook(request: Request):
 @app.get("/latest-notification")
 async def get_latest_notification():
     return JSONResponse(CommandCenterResponse)
+
+@app.post("/etfwebhook")
+async def etfwebhook(request: Request):
+    content_type = request.headers.get("Content-Type")
+    if content_type == "application/json":
+        payload = await request.json()
+        print("Webhook received (JSON):", payload)
+        etfstore(payload)
+    if content_type != "application/json":
+        print("Received Invalid Dat", payload)
