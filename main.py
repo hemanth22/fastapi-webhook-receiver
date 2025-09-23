@@ -7,6 +7,7 @@ from datetime import date
 import asyncpg
 import os
 import requests
+import time
 
 POSTGRES_USER = os.environ.get('postgres_user')
 POSTFRES_PASSWORD = os.environ.get('postgres_password')
@@ -51,6 +52,7 @@ def stockdatastore(data):
         }
 
     # Send the message
+    time.sleep(2) # Sleep for 2 seconds to avoid hitting rate limits
     response = requests.post(url, data=payload_stockdatastore)
     # Check for successful response
     if response.status_code == 200:
@@ -101,6 +103,7 @@ def newsapistore(data):
         }
 
     # Send the message
+    time.sleep(2) # Sleep for 2 seconds to avoid hitting rate limits
     response = requests.post(url, data=payload_newsapistore)
     # Check for successful response
     if response.status_code == 200:
@@ -131,6 +134,7 @@ def mvetfstore(data):
         }
 
     # Send the message
+    time.sleep(2) # Sleep for 2 seconds to avoid hitting rate limits
     response = requests.post(url, data=payload_mveftstore)
     # Check for successful response
     if response.status_code == 200:
@@ -157,6 +161,7 @@ def etfstore(data):
         }
 
     # Send the message
+    time.sleep(2) # Sleep for 2 seconds to avoid hitting rate limits
     response = requests.post(url, data=payload_eftstore)
     # Check for successful response
     if response.status_code == 200:
