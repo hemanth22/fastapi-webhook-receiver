@@ -52,7 +52,7 @@ def stockdatastore(data):
         }
 
     # Send the message
-    time.sleep(2) # Sleep for 2 seconds to avoid hitting rate limits
+    time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
     response = requests.post(url, data=payload_stockdatastore)
     # Check for successful response
     if response.status_code == 200:
@@ -103,7 +103,7 @@ def newsapistore(data):
         }
 
     # Send the message
-    time.sleep(2) # Sleep for 2 seconds to avoid hitting rate limits
+    time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
     response = requests.post(url, data=payload_newsapistore)
     # Check for successful response
     if response.status_code == 200:
@@ -134,7 +134,7 @@ def mvetfstore(data):
         }
 
     # Send the message
-    time.sleep(2) # Sleep for 2 seconds to avoid hitting rate limits
+    time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
     response = requests.post(url, data=payload_mveftstore)
     # Check for successful response
     if response.status_code == 200:
@@ -161,7 +161,7 @@ def etfstore(data):
         }
 
     # Send the message
-    time.sleep(2) # Sleep for 2 seconds to avoid hitting rate limits
+    time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
     response = requests.post(url, data=payload_eftstore)
     # Check for successful response
     if response.status_code == 200:
@@ -383,3 +383,4 @@ async def maswebhook(request: Request):
         stockdatastore(payload)
     if content_type != "application/json":
         print("Received Invalid Data", payload)
+
