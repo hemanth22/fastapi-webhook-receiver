@@ -54,6 +54,7 @@ def stockdatastore(data):
     # Send the message
     time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
     response = requests.post(url, data=payload_stockdatastore)
+    print("Debug Response:", response.json())
     # Check for successful response
     if response.status_code == 200:
         return "Message sent successfully."
