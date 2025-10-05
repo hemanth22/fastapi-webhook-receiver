@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, Form, HTTPException
+from pydantic import BaseModel, Field
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
@@ -8,6 +9,9 @@ import asyncpg
 import os
 import requests
 import time
+
+# === Template for WhatsApp URL ===
+WHATSAPP_URL_TEMPLATE = os.getenv('WHATSAPP_URL', 'https://wa.me/{number}')
 
 POSTGRES_USER = os.environ.get('postgres_user')
 POSTFRES_PASSWORD = os.environ.get('postgres_password')
@@ -253,7 +257,21 @@ def newsAlert(source, message):
 
 
 app = FastAPI()
+
 templates = Jinja2Templates(directory="templates")
+
+# === Request model ===
+#class AdRequest(BaseModel):
+#    caption: str
+#    ImageURL: str
+#    WhatsAppNumber: str
+#    telegram_channel_id: str
+
+class AdRequest(BaseModel):
+    caption: str = Field(..., example="✨You + Me + Poori 🥔 = the perfect love story\n📞 Call us: +91 9247634520\nLimited-time offer: Buy 2, Get 1 Free!")
+    ImageURL: str = Field(..., example="https://www.vidhyashomecooking.com/wp-content/uploads/2021/04/PooriRecipe.jpg")
+    WhatsAppNumber: str = Field(..., example="919247634520")
+    telegram_channel_id: str = Field(..., example="-1003097875450")
 
 @app.get("/", response_class=HTMLResponse)
 async def read_form(request: Request):
@@ -385,3 +403,25 @@ async def maswebhook(request: Request):
     if content_type != "application/json":
         print("Received Invalid Data", payload)
 
+@app.post("/telegram-send-ad-image/")
+def telegram_send_ad_image(request: AdRequest):
+    whatsapp_url = WHATSAPP_URL_TEMPLATE.format(number=request.WhatsAppNumber)
+    telegram_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
+
+    payload = {
+        'chat_id': request.telegram_channel_id,
+        'photo': request.ImageURL,
+        'caption': request.caption,
+        'parse_mode': 'HTML',
+        'reply_markup': {
+            'inline_keyboard': [[
+                {'text': '📞 Call Now on WhatsApp', 'url': whatsapp_url}
+            ]]
+        }
+    }
+
+    response = requests.post(telegram_url, json=payload)
+    if response.status_code == 200:
+        return {"status": "✅ Advertisement sent successfully!"}
+    else:
+        raise HTTPException(status_code=response.status_code, detail=f"❌ Failed to send ad: {response.text}")
