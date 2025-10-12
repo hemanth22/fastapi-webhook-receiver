@@ -40,6 +40,33 @@ CHAT_ID = os.environ.get('telegram_id')
 CHANNEL_CHAT_ID = '-1003097875450'
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
+def masstockdatastore(data):
+    formatted_message = (
+    f"Source: {data['source']}\n"
+    f"Stock Symbol: {data['symbol']}\n"
+    f"Company Name: {data['companyName']}\n"
+    f"Volume: {data['volume']}\n"
+    f"Last Traded Price: {data['lastPrice']}\n"
+    f"Total Traded Volume: {data['totalTradedVolume']}\n"
+    f"Percentage: {data['pChange']}"
+    )
+    payload_masstockdatastore = {
+        'chat_id': CHANNEL_CHAT_ID,
+        'text': formatted_message,
+        'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
+        }
+
+    # Send the message
+    time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
+    response = requests.post(url, data=payload_masstockdatastore)
+    print("Debug Response:", response.json())
+    # Check for successful response
+    if response.status_code == 200:
+        return "Message sent successfully."
+    else:
+        return f"Failed to send message. Status code: {response.status_code}"
+        return f"Response: {response.text}"
+
 def stockdatastore(data):
     formatted_message = (
     f"Source: {data['source']}\n"
@@ -400,6 +427,16 @@ async def maswebhook(request: Request):
         payload = await request.json()
         print("Webhook received (JSON):", payload)
         stockdatastore(payload)
+    if content_type != "application/json":
+        print("Received Invalid Data", payload)
+
+@app.post("/webhookmas")
+async def maswebhook(request: Request):
+    content_type = request.headers.get("Content-Type")
+    if content_type == "application/json":
+        payload = await request.json()
+        print("Webhook received (JSON):", payload)
+        masstockdatastore(payload)
     if content_type != "application/json":
         print("Received Invalid Data", payload)
 
