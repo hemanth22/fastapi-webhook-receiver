@@ -63,6 +63,14 @@ def masstockdatastore(data):
     # Check for successful response
     if response.status_code == 200:
         return "Message sent successfully."
+    if response.status_code == 429:
+        print("Rate limit exceeded. Waiting for 60 seconds before retrying...")
+        time.sleep(60)  # Wait for 60 seconds before retrying
+        response = requests.post(url, data=payload_masstockdatastore)
+        if response.status_code == 200:
+            return "Message sent successfully after retry."
+        else:
+            return f"Failed to send message after retry. Status code: {response.status_code}"
     else:
         return f"Failed to send message. Status code: {response.status_code}"
         return f"Response: {response.text}"
@@ -89,6 +97,14 @@ def stockdatastore(data):
     # Check for successful response
     if response.status_code == 200:
         return "Message sent successfully."
+    if response.status_code == 429:
+        print("Rate limit exceeded. Waiting for 60 seconds before retrying...")
+        time.sleep(60)  # Wait for 60 seconds before retrying
+        response = requests.post(url, data=payload_stockdatastore)
+        if response.status_code == 200:
+            return "Message sent successfully after retry."
+        else:
+            return f"Failed to send message after retry. Status code: {response.status_code}"
     else:
         return f"Failed to send message. Status code: {response.status_code}"
         return f"Response: {response.text}"
@@ -171,6 +187,14 @@ def mvetfstore(data):
     # Check for successful response
     if response.status_code == 200:
         return "Message sent successfully."
+    if response.status_code == 429:
+        print("Rate limit exceeded. Waiting for 60 seconds before retrying...")
+        time.sleep(60)  # Wait for 60 seconds before retrying
+        response = requests.post(url, data=payload_mveftstore)
+        if response.status_code == 200:
+            return "Message sent successfully after retry."
+        else:
+            return f"Failed to send message after retry. Status code: {response.status_code}"
     else:
         return f"Failed to send message. Status code: {response.status_code}"
         return f"Response: {response.text}"
@@ -198,6 +222,14 @@ def etfstore(data):
     # Check for successful response
     if response.status_code == 200:
         return "Message sent successfully."
+    if response.status_code == 429:
+        print("Rate limit exceeded. Waiting for 60 seconds before retrying...")
+        time.sleep(60)  # Wait for 60 seconds before retrying
+        response = requests.post(url, data=payload_eftstore)
+        if response.status_code == 200:
+            return "Message sent successfully after retry."
+        else:
+            return f"Failed to send message after retry. Status code: {response.status_code}"
     else:
         return f"Failed to send message. Status code: {response.status_code}"
         return f"Response: {response.text}"
