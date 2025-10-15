@@ -27,6 +27,8 @@ DB_CONFIG = {
     "port": POSTFRES_PORT
 }
 
+#global CommandCenterResponse
+
 async def call_insert_remainder(p_date: str, p_message: str):
     conn = await asyncpg.connect(**DB_CONFIG)
     try:
@@ -39,6 +41,33 @@ BOT_TOKEN = os.environ.get('telegram_api_key')
 CHAT_ID = os.environ.get('telegram_id')
 CHANNEL_CHAT_ID = '-1003097875450'
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
+def send_with_retries(url, payload, max_retries=10, delay=61):
+    """
+    Send a POST request with retries in case of failure.
+    Parameters:
+    - url: The URL to send the POST request to.
+    - payload: The data to send in the POST request.
+    - max_retries: Maximum number of retry attempts.
+    - delay: Delay in seconds between retry attempts.
+    """
+    time.sleep(0.1)  # Sleep for 0.1 seconds to avoid hitting rate limits
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(url, data=payload)
+            if response.status_code == 200:
+                print("✅ Request successful.")
+                return response.json()  # Return the successful response
+            if response.status_code == 429:
+                print("⚠️ Rate limit exceeded. Waiting for 61 seconds before retrying...")
+                continue  # Retry the request after waiting
+            if response.status_code != 200 and response.status_code != 429:
+                print(f"⚠️ Failed to send message. Status code: {response.status_code}. Response: {response.text}")
+                return {"error": f"Failed to send message. Status code: {response.status_code}"}
+        except requests.RequestException as e:
+            print(f"❌ Error sending request: {e}")
+        time.sleep(delay)  # Wait before the next retry
+    return {"error": f"Failed to send message after {max_retries} attempts."}
 
 def masstockdatastore(data):
     formatted_message = (
@@ -55,25 +84,26 @@ def masstockdatastore(data):
         'text': formatted_message,
         'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
         }
-
+    response = send_with_retries(url, payload_masstockdatastore)
+    print("Final Response:", response)
     # Send the message
-    time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
-    response = requests.post(url, data=payload_masstockdatastore)
-    print("Debug Response:", response.json())
+    #time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
+    #response = requests.post(url, data=payload_masstockdatastore)
+    #print("Debug Response:", response.json())
     # Check for successful response
-    if response.status_code == 200:
-        return "Message sent successfully."
-    if response.status_code == 429:
-        print("Rate limit exceeded. Waiting for 60 seconds before retrying...")
-        time.sleep(60)  # Wait for 60 seconds before retrying
-        response = requests.post(url, data=payload_masstockdatastore)
-        if response.status_code == 200:
-            return "Message sent successfully after retry."
-        else:
-            return f"Failed to send message after retry. Status code: {response.status_code}"
-    else:
-        return f"Failed to send message. Status code: {response.status_code}"
-        return f"Response: {response.text}"
+    #if response.status_code == 200:
+    #    return "Message sent successfully."
+    #if response.status_code == 429:
+    #    print("Rate limit exceeded. Waiting for 60 seconds before retrying...")
+    #    time.sleep(60)  # Wait for 60 seconds before retrying
+    #    response = requests.post(url, data=payload_masstockdatastore)
+    #    if response.status_code == 200:
+    #        return "Message sent successfully after retry."
+    #    else:
+    #        return f"Failed to send message after retry. Status code: {response.status_code}"
+    #else:
+    #    return f"Failed to send message. Status code: {response.status_code}"
+    #    return f"Response: {response.text}"
 
 def stockdatastore(data):
     formatted_message = (
@@ -89,25 +119,26 @@ def stockdatastore(data):
         'text': formatted_message,
         'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
         }
-
+    response = send_with_retries(url, payload_stockdatastore)
+    print("Final Response:", response)
     # Send the message
-    time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
-    response = requests.post(url, data=payload_stockdatastore)
-    print("Debug Response:", response.json())
+    #time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
+    #response = requests.post(url, data=payload_stockdatastore)
+    #print("Debug Response:", response.json())
     # Check for successful response
-    if response.status_code == 200:
-        return "Message sent successfully."
-    if response.status_code == 429:
-        print("Rate limit exceeded. Waiting for 60 seconds before retrying...")
-        time.sleep(60)  # Wait for 60 seconds before retrying
-        response = requests.post(url, data=payload_stockdatastore)
-        if response.status_code == 200:
-            return "Message sent successfully after retry."
-        else:
-            return f"Failed to send message after retry. Status code: {response.status_code}"
-    else:
-        return f"Failed to send message. Status code: {response.status_code}"
-        return f"Response: {response.text}"
+    #if response.status_code == 200:
+    #    return "Message sent successfully."
+    #if response.status_code == 429:
+    #    print("Rate limit exceeded. Waiting for 60 seconds before retrying...")
+    #    time.sleep(60)  # Wait for 60 seconds before retrying
+    #    response = requests.post(url, data=payload_stockdatastore)
+    #    if response.status_code == 200:
+    #        return "Message sent successfully after retry."
+    #    else:
+    #        return f"Failed to send message after retry. Status code: {response.status_code}"
+    #else:
+    #    return f"Failed to send message. Status code: {response.status_code}"
+    #    return f"Response: {response.text}"
 
 def gnewsstore(data):
     formatted_message = (
@@ -180,24 +211,25 @@ def mvetfstore(data):
         'text': formatted_message,
         'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
         }
-
+    response = send_with_retries(url, payload_mveftstore)
+    print("Final Response:", response)
     # Send the message
-    time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
-    response = requests.post(url, data=payload_mveftstore)
+    #time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
+    #response = requests.post(url, data=payload_mveftstore)
     # Check for successful response
-    if response.status_code == 200:
-        return "Message sent successfully."
-    if response.status_code == 429:
-        print("Rate limit exceeded. Waiting for 60 seconds before retrying...")
-        time.sleep(60)  # Wait for 60 seconds before retrying
-        response = requests.post(url, data=payload_mveftstore)
-        if response.status_code == 200:
-            return "Message sent successfully after retry."
-        else:
-            return f"Failed to send message after retry. Status code: {response.status_code}"
-    else:
-        return f"Failed to send message. Status code: {response.status_code}"
-        return f"Response: {response.text}"
+    #if response.status_code == 200:
+    #    return "Message sent successfully."
+    #if response.status_code == 429:
+    #    print("Rate limit exceeded. Waiting for 60 seconds before retrying...")
+    #    time.sleep(60)  # Wait for 60 seconds before retrying
+    #    response = requests.post(url, data=payload_mveftstore)
+    #    if response.status_code == 200:
+    #        return "Message sent successfully after retry."
+    #    else:
+    #        return f"Failed to send message after retry. Status code: {response.status_code}"
+    #else:
+    #    return f"Failed to send message. Status code: {response.status_code}"
+    #    return f"Response: {response.text}"
 
 def etfstore(data):
     formatted_message = (
@@ -215,24 +247,25 @@ def etfstore(data):
         'text': formatted_message,
         'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
         }
-
+    response = send_with_retries(url, payload_eftstore)
+    print("Final Response:", response)
     # Send the message
-    time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
-    response = requests.post(url, data=payload_eftstore)
+    #time.sleep(0.1) # Sleep for 0.1 seconds to avoid hitting rate limits
+    #response = requests.post(url, data=payload_eftstore)
     # Check for successful response
-    if response.status_code == 200:
-        return "Message sent successfully."
-    if response.status_code == 429:
-        print("Rate limit exceeded. Waiting for 60 seconds before retrying...")
-        time.sleep(60)  # Wait for 60 seconds before retrying
-        response = requests.post(url, data=payload_eftstore)
-        if response.status_code == 200:
-            return "Message sent successfully after retry."
-        else:
-            return f"Failed to send message after retry. Status code: {response.status_code}"
-    else:
-        return f"Failed to send message. Status code: {response.status_code}"
-        return f"Response: {response.text}"
+    #if response.status_code == 200:
+    #    return "Message sent successfully."
+    #if response.status_code == 429:
+    #    print("Rate limit exceeded. Waiting for 60 seconds before retrying...")
+    #    time.sleep(60)  # Wait for 60 seconds before retrying
+    #    response = requests.post(url, data=payload_eftstore)
+    #    if response.status_code == 200:
+    #        return "Message sent successfully after retry."
+    #    else:
+    #        return f"Failed to send message after retry. Status code: {response.status_code}"
+    #else:
+    #    return f"Failed to send message. Status code: {response.status_code}"
+    #    return f"Response: {response.text}"
 
 
 
@@ -262,6 +295,26 @@ def gitGuardianAlert(source,display_name,message,gitguardian_url):
         return f"Failed to send message. Status code: {response.status_code}"
         return f"Response: {response.text}"
 
+def bitroidcustomMessage(source,message):
+    # Define the message format
+    formatted_message = f"""
+    Message from {source}: {message}
+    """
+    # Define the payload
+    payload_bitroidcustomMessage = {
+        'chat_id': CHANNEL_CHAT_ID,
+        'text': formatted_message,
+        'parse_mode': 'Markdown'  # Optional: Use 'HTML' if you prefer HTML formatting
+        }
+
+    # Send the message
+    response = requests.post(url, data=payload_bitroidcustomMessage)
+    # Check for successful response
+    if response.status_code == 200:
+        return "Message sent successfully."
+    else:
+        return f"Failed to send message. Status code: {response.status_code}"
+        return f"Response: {response.text}"
 
 def customMessage(source,message):
     # Define the message format
@@ -373,30 +426,27 @@ async def webhook(request: Request):
         else:
             display_name = "Policy Break"
 
-        global CommandCenterResponse
+        #global CommandCenterResponse
         #CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
 
         if display_name != "Policy Break" and source == "GitGuardian":
-            CommandCenterResponse = f"A message from Command Center, {message} and type of secret leak is {display_name} reported by {source}"
             gitGuardianAlert(source,display_name,message,gitguardian_url)
 
         if display_name == "Policy Break" and source == "GitGuardian":
-            CommandCenterResponse = f"A message from Command Center, {message} and {display_name} detected, reported by {source}"
             gitGuardianAlert(source,display_name,message,gitguardian_url)
 
         if source == "circleci":
-            CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
             customMessage(source,message)
 
+        if source == "bitroidnews":
+            bitroidcustomMessage(source,message)
+
         if source == "github":
-            CommandCenterResponse = f"A message from Command Center, {message} reported by {source}"
             customMessage(source,message)
 
         if source == "news":
-            CommandCenterResponse = f"A message from Command Center, news reported by {source}"
             newsAlert(source, message)
 
-        print(CommandCenterResponse)
         # Handle the JSON payload as needed
     elif content_type == "application/x-www-form-urlencoded":
         # Handle form data
@@ -407,10 +457,6 @@ async def webhook(request: Request):
         raise HTTPException(status_code=400, detail="Unsupported content type")
 
     return {"status": "Webhook received successfully"}
-
-@app.get("/latest-notification")
-async def get_latest_notification():
-    return JSONResponse(CommandCenterResponse)
 
 @app.post("/etfwebhook")
 async def etfwebhook(request: Request):
