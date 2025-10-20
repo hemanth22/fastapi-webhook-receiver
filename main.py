@@ -69,6 +69,41 @@ def send_with_retries(url, payload, max_retries=10, delay=61):
         time.sleep(delay)  # Wait before the next retry
     return {"error": f"Failed to send message after {max_retries} attempts."}
 
+# === Send MultiMedia Group ===
+def send_media_group(chat_id: str, caption: str, image_urls: list):
+    media_group = []
+    for i, url in enumerate(image_urls):
+        media = {
+            'type': 'photo',
+            'media': url
+        }
+        if i == 0:
+            media['caption'] = caption
+            media['parse_mode'] = 'HTML'
+        media_group.append(media)
+
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMediaGroup"
+    payload = {
+        'chat_id': chat_id,
+        'media': media_group
+    }
+    return requests.post(url, json=payload)
+
+# === Send WhatsApp + Order Button ===
+def send_dual_button(chat_id: str, whatsapp_url: str, order_url: str):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    payload = {
+        'chat_id': chat_id,
+        'text': "🛒 Ready to order?",
+        'reply_markup': {
+            'inline_keyboard': [[
+                {'text': '📞 Order on WhatsApp', 'url': whatsapp_url},
+                {'text': '🛒 Order Now', 'url': order_url}
+            ]]
+        }
+    }
+    return requests.post(url, json=payload)
+
 def masstockdatastore(data):
     formatted_message = (
     f"Source: {data['source']}\n"
@@ -385,6 +420,22 @@ class AdRequest(BaseModel):
     WhatsAppNumber: str = Field(..., example="919247634520")
     telegram_channel_id: str = Field(..., example="-1003097875450")
 
+class AdRequestMultiCall(BaseModel):
+    caption: str = Field(..., example="✨Hand-painted heritage for the modern muse\n📞 Call us: +91 9247634520\nLimited-time offer: Buy 1, Get 1 Free!")
+    ImageURL: str = Field(..., example="https://i.postimg.cc/sXTCSLmy/kalamkaari-image.jpg")
+    WhatsAppNumber: str = Field(..., example="919492377210")
+    telegram_channel_id: str = Field(..., example="-1003097875450")
+    ORDER_URL: str = Field(..., example="https://www.instagram.com/amaravathikalamkari/")
+
+class AdRequestMultiImg(BaseModel):
+    caption: str = Field(..., example="🥟 Samosa Fiesta!\nGolden, crispy, and bursting with flavor.\n📞 Call us: +91 9247634520 or tap below to order on WhatsApp!")
+    ImageURL1: str = Field(..., example="https://media.karousell.com/media/photos/products/2023/7/4/samosa_ayam__daging_frozen_1688451858_94e31fb5.jpg")
+    ImageURL2: str = Field(..., example="https://free-images.com/sm/c66d/punjabi_samosa.jpg")
+    ImageURL3: str = Field(..., example="https://pixahive.com/wp-content/uploads/2020/12/Samosa-249334-pixahive.jpg")
+    WhatsAppNumber: str = Field(..., example="919247634520")
+    telegram_channel_id: str = Field(..., example="-1003097875450")
+    ORDER_URL: str = Field(..., example="https://yourstore.com/order-samosa")
+
 @app.get("/", response_class=HTMLResponse)
 async def read_form(request: Request):
     return templates.TemplateResponse("form.html", {"request": request})
@@ -540,3 +591,42 @@ def telegram_send_ad_image(request: AdRequest):
         return {"status": "✅ Advertisement sent successfully!"}
     else:
         raise HTTPException(status_code=response.status_code, detail=f"❌ Failed to send ad: {response.text}")
+
+@app.post("/telegram-send-ad-image-link/")
+def telegram_send_ad_image_link(request: AdRequestMultiCall):
+    whatsapp_url = f"https://wa.me/{request.WhatsAppNumber}"
+    telegram_api_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
+
+    payload = {
+        "chat_id": request.telegram_channel_id,
+        "photo": request.ImageURL,
+        "caption": request.caption,
+        "parse_mode": "HTML",
+        "reply_markup": {
+            "inline_keyboard": [[
+                {"text": "📞 Call Now on WhatsApp", "url": whatsapp_url},
+                {"text": "🛒 Order Now", "url": request.ORDER_URL}
+            ]]
+        }
+    }
+
+    response = requests.post(telegram_api_url, json=payload)
+    if response.status_code == 200:
+        return {"status": "✅ Advertisement sent successfully!"}
+    else:
+        raise HTTPException(status_code=response.status_code, detail=f"❌ Failed to send ad: {response.text}")
+
+@app.post("/send-multimgad-galary")
+async def send_gallery(data: AdRequestMultiImg):
+    image_urls = [data.ImageURL1, data.ImageURL2, data.ImageURL3]
+    gallery_response = send_media_group(data.telegram_channel_id, data.caption, image_urls)
+
+    whatsapp_url = f"https://wa.me/{data.WhatsAppNumber}?text=I'm%20interested%20in%20ordering%20samosas!"
+    button_response = send_dual_button(data.telegram_channel_id, whatsapp_url, str(data.ORDER_URL))
+
+    return {
+        "gallery_status": gallery_response.status_code,
+        "gallery_detail": gallery_response.text,
+        "button_status": button_response.status_code,
+        "button_detail": button_response.text
+    }
