@@ -1,3 +1,8 @@
-requests
 fastapi
-uvicorn
+uvicorn[standard]
+httpx
+redis>=5.0.0
+apscheduler>=3.10.0
+sqlalchemy>=2.0.0
+asyncpg>=0.29.0
+aiosqlite>=0.20.0
