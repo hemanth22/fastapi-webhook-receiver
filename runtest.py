@@ -3,7 +3,9 @@ import json
 import logging
 from nsepython import nsefetch
 import os
-
+import psycopg2
+from datetime import datetime
+import pytz
 
 
 
@@ -174,3 +176,99 @@ def telegram_send_message(message):
 for new_sendMessage_tele in message.split("\n"):
     telegram_send_message(new_sendMessage_tele)
 logger.info("Test Case 7 Completed for get remainders")
+
+logger.info("Test Case 8 Started for get remainders")
+
+
+postgres_hostname = os.environ.get('postgres_host')
+postgres_database = os.environ.get('postgres_db')
+postgres_port = os.environ.get('postgres_port')
+postgres_username = os.environ.get('postgres_user')
+postgres_password = os.environ.get('postgres_password')
+bot_token = os.environ.get('Priyoid_bot')
+
+  
+def telegram_send_message(message):
+    url = "https://api.telegram.org/bot{}/sendMessage?chat_id=-1001943848370&text={}".format(bot_token, message)
+    requests.get(url)
+
+def fetch_message_for_date(date_str):
+    connection = None
+    cursor = None
+    try:
+        # Connect to the PostgreSQL database
+        connection = psycopg2.connect(database=postgres_database, user=postgres_username, password=postgres_password, host=postgres_hostname, port=postgres_port)
+        cursor = connection.cursor()
+
+        # Define the query with parameterized inputs
+        query = """
+        SELECT message 
+        FROM remainder_messages 
+        WHERE message_date = %s;
+        """
+        # Execute the query
+        cursor.execute(query, (date_str,))
+        results = cursor.fetchall()
+
+        # Return messages if they exist
+        if results:
+            messages = [row[0] for row in results]
+            return messages
+        else:
+            return ["No messages found for this date."]
+
+    except (Exception, psycopg2.Error) as error:
+        return [f"Error while connecting to PostgreSQL: {error}"]
+
+    finally:
+        # Close the database connection
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+# Usage example
+if __name__ == "__main__":
+    # Specify the date in YYYY-MM-DD format
+    ist_timezone = pytz.timezone("Asia/Kolkata")
+    # Create a datetime object
+    current_date = datetime.now(ist_timezone)
+    # Format it to YYYY-MM-DD
+    formatted_date = current_date.strftime("%Y-%m-%d")
+    print(f"Formatted Date: {formatted_date}")
+    date_to_query = formatted_date
+    message = fetch_message_for_date(date_to_query)
+    #telegram_send_message(message)
+    for new_sendMessage_tele in message:
+        telegram_send_message(new_sendMessage_tele)
+    print(f"Message for {date_to_query}: {message}")
+
+logger.info("Test Case 8 Completed for get remainders")
+
+logger.info("Test Case 9 Started for get remainders")
+
+postgres_hostname = os.environ.get('postgres_host')
+postgres_database = os.environ.get('postgres_db')
+postgres_port = os.environ.get('postgres_port')
+postgres_username = os.environ.get('postgres_user')
+postgres_password = os.environ.get('postgres_password')
+bot_token = os.environ.get('Priyoid_bot')
+
+# Establishing the connection
+conn = psycopg2.connect(
+   database=postgres_database, user=postgres_username, password=postgres_password, host=postgres_hostname, port=postgres_port
+)
+# Creating a cursor object using the cursor() method
+cursor = conn.cursor()
+
+# Executing an MYSQL function using the execute() method
+cursor.execute("select version()")
+
+# Fetch a single row using fetchone() method.
+data = cursor.fetchone()
+print("Connection established to: ", data)
+
+# Closing the connection
+conn.close()
+
+logger.info("Test Case 9 Completed for get remainders")

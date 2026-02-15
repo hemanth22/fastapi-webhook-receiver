@@ -80,7 +80,7 @@ def send_with_retries(target_url, payload, max_retries=10, delay=61):
     """
     Send a POST request with retries in case of failure.
     """
-    time.sleep(0.1)  # Sleep for 0.1 seconds to avoid hitting rate limits
+    time.sleep(1)  # Sleep for 1 seconds to avoid hitting rate limits
     for attempt in range(max_retries):
         try:
             response = requests.post(target_url, data=payload)
