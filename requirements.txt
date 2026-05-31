@@ -9,5 +9,4 @@ httpx
 redis
 psycopg2-binary
 pytz
-nsepython
 certifi
