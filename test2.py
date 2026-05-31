@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 import json
 
 # The JSON message as a string
@@ -37,6 +39,6 @@ source = data.get('source')
 message = data.get('message', 'there is an alert')
 
 if source:
-    print(f"Command Center, {message}, reported by {source}")
+    logger.info(f"Command Center, {message}, reported by {source}")
 else:
-    print(f"Command Center, {message}")
+    logger.info(f"Command Center, {message}")

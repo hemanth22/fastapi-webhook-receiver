@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from routers import (
@@ -34,4 +36,4 @@ app.include_router(code13_telegram_message.router)
 # Optional: Mount static files if needed (not explicitly used in previous main.py but imported)
 # app.mount("/static", StaticFiles(directory="static"), name="static")
 
-print("Application started and routers included.")
+logger.info("Application started and routers included.")

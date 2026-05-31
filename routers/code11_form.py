@@ -142,7 +142,7 @@ async def handle_form(
                  logger.error("Failed to fetch data from postgresql to Redis update.")
 
     except Exception as e:
-        logger.error(f"Error triggering Redis update: {e}")
+        logger.exception("Error triggering Redis update")
         
     t = jinja2.Template(HTML_TEMPLATE)
     return HTMLResponse(t.render(

@@ -45,7 +45,7 @@ def get_db_connection():
         )
         return connection
     except psycopg2.Error as e:
-        logger.error(f"Error connecting to PostgreSQL: {e}")
+        logger.exception("Error connecting to PostgreSQL")
         return None
 
 def get_postgres_data():
@@ -67,7 +67,7 @@ def get_postgres_data():
         formatted_date = current_dt.strftime("%Y-%m-%d")
         logger.info(f"Processing for date: {formatted_date}")
     except Exception as e:
-        logger.error(f"Timezone error: {str(e)}")
+        logger.exception("Timezone error")
         connection.close()
         return None
 
@@ -98,7 +98,7 @@ def get_postgres_data():
             return []
 
     except Exception as e:
-        logger.error(f"Error during processing: {e}")
+        logger.exception("Error during processing")
         return None
     finally:
         cursor.close()
@@ -131,9 +131,9 @@ def update_redis(data):
             redis_client.delete('remainder_messages')
             
     except redis.ConnectionError as e:
-        logger.error(f"Redis connection error: {e}")
+        logger.exception("Redis connection error")
     except Exception as e:
-         logger.error(f"Error updating Redis: {e}")
+         logger.exception("Error updating Redis")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')

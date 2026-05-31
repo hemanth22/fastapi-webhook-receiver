@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 import json
 
 # The JSON message as a string
@@ -36,4 +38,4 @@ data = json.loads(json_message)
 
 
 # Construct and print the output string
-print(f"Command Center, {data['message']}, reported by {data['source']}")
+logger.info(f"Command Center, {data['message']}, reported by {data['source']}")

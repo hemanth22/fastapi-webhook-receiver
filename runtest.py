@@ -80,14 +80,14 @@ for etf in etf_data.get('data', []):
     }
 
     try:
-       print(payload)
+       logger.info(payload)
        response = requests.post(webhook_url, json=payload)
        if response.status_code == 200:
-           print(f"✅ Sent data for {payload['symbol']}")
+           logger.info(f"✅ Sent data for {payload['symbol']}")
        else:
-          print(f"⚠️ Failed to send {payload['symbol']}: {response.status_code} - {response.text}")
+          logger.error(f"⚠️ Failed to send {payload['symbol']}: {response.status_code} - {response.text}")
     except requests.RequestException as e:
-        print(f"❌ Error sending data for {payload['symbol']}: {e}")
+        logger.error(f"❌ Error sending data for {payload['symbol']}: {e}")
 
 logger.info("Test Case 4 completed for nse etf api")
 
@@ -118,11 +118,11 @@ for stockdata in stocks_data.get('data', []):
     try:
        response = requests.post(webhook_url, json=payload)
        if response.status_code == 200:
-           print(f"✅ Sent data for {payload['symbol']}")
+           logger.info(f"✅ Sent data for {payload['symbol']}")
        else:
-          print(f"⚠️ Failed to send {payload['symbol']}: {response.status_code} - {response.text}")
+          logger.error(f"⚠️ Failed to send {payload['symbol']}: {response.status_code} - {response.text}")
     except requests.RequestException as e:
-        print(f"❌ Error sending data for {payload['symbol']}: {e}")
+        logger.error(f"❌ Error sending data for {payload['symbol']}: {e}")
 
 logger.info("Test Case 5 completed for nse stock api")
 
@@ -149,11 +149,11 @@ for stockdata in stocks_data.get('data', []):
     try:
        response = requests.post(webhook_url, json=payload)
        if response.status_code == 200:
-           print(f"✅ Sent data for {payload['symbol']}")
+           logger.info(f"✅ Sent data for {payload['symbol']}")
        else:
-          print(f"⚠️ Failed to send {payload['symbol']}: {response.status_code} - {response.text}")
+          logger.error(f"⚠️ Failed to send {payload['symbol']}: {response.status_code} - {response.text}")
     except requests.RequestException as e:
-        print(f"❌ Error sending data for {payload['symbol']}: {e}")
+        logger.error(f"❌ Error sending data for {payload['symbol']}: {e}")
 
 logger.info("Test Case 6 Completed for nse most actives")
 
@@ -235,13 +235,13 @@ if __name__ == "__main__":
     current_date = datetime.now(ist_timezone)
     # Format it to YYYY-MM-DD
     formatted_date = current_date.strftime("%Y-%m-%d")
-    print(f"Formatted Date: {formatted_date}")
+    logger.info(f"Formatted Date: {formatted_date}")
     date_to_query = formatted_date
     message = fetch_message_for_date(date_to_query)
     #telegram_send_message(message)
     for new_sendMessage_tele in message:
         telegram_send_message(new_sendMessage_tele)
-    print(f"Message for {date_to_query}: {message}")
+    logger.info(f"Message for {date_to_query}: {message}")
 
 logger.info("Test Case 8 Completed for get remainders")
 
@@ -270,7 +270,7 @@ cursor.execute("select version()")
 
 # Fetch a single row using fetchone() method.
 data = cursor.fetchone()
-print("Connection established to: ", data)
+logger.info("Connection established to: ", data)
 
 # Closing the connection
 conn.close()
