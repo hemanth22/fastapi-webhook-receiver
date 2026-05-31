@@ -6,6 +6,8 @@ import sys
 import json
 from datetime import datetime
 import pytz
+import asyncio
+from fastapi import APIRouter, HTTPException
 
 
 # Configure logging
@@ -57,6 +59,7 @@ def get_postgres_data():
     if not connection:
         logger.error("Database connection failed during processing.")
         return None
+        
 
     logger.info("Database connection successful.")
     
@@ -110,8 +113,6 @@ def update_redis(data):
     """
     try:
         # Check connection
-
-        
         logger.info(f"Redis connection check {redis_client.ping()}")
 
         if data:
@@ -134,6 +135,29 @@ def update_redis(data):
         logger.exception("Redis connection error")
     except Exception as e:
          logger.exception("Error updating Redis")
+
+router = APIRouter()
+
+@router.post("/update-telegram-remainder-redis")
+async def update_telegram_remainder_redis():
+    logger.debug("Received request for /update-telegram-remainder-redis")
+    try:
+        # Run sync DB fetch in thread
+        data = await asyncio.to_thread(get_postgres_data)
+        
+        if data is None:
+            raise HTTPException(status_code=500, detail="Failed to fetch data from PostgreSQL")
+            
+        # Run sync Redis update in thread
+        await asyncio.to_thread(update_redis, data)
+        
+        return {"status": "success", "message": "Redis updated successfully"}
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error in /update-redis: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')

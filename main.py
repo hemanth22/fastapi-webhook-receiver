@@ -14,6 +14,7 @@ from routers import (
     code9_telegram_link,
     code10_gallery,
     code11_form,
+    code12_redisupdate,
     code13_telegram_message
 )
 
@@ -31,6 +32,7 @@ app.include_router(code8_telegram_ad.router)
 app.include_router(code9_telegram_link.router)
 app.include_router(code10_gallery.router)
 app.include_router(code11_form.router)
+app.include_router(code12_redisupdate.router)
 app.include_router(code13_telegram_message.router)
 
 # Optional: Mount static files if needed (not explicitly used in previous main.py but imported)
