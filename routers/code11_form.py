@@ -15,7 +15,7 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/", response_class=HTMLResponse)
 async def read_form(request: Request):
-    return templates.TemplateResponse("form.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="form.html")
 
 @router.post("/submit", response_class=HTMLResponse)
 async def handle_form(
@@ -46,8 +46,7 @@ async def handle_form(
     except Exception as e:
         logger.error(f"Error triggering Redis update: {e}")
         
-    return templates.TemplateResponse("form.html", {
-        "request": request,
+    return templates.TemplateResponse(request=request, name="form.html", context={
         "submitted": True,
         "date_input": date_input,
         "message": message
