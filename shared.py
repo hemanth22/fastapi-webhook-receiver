@@ -85,16 +85,16 @@ def send_with_retries(target_url, payload, max_retries=10, delay=61):
         try:
             response = requests.post(target_url, data=payload)
             if response.status_code == 200:
-                print("✅ Request successful.")
+                logger.info("✅ Request successful.")
                 return response.json()  # Return the successful response
             if response.status_code == 429:
-                print("⚠️ Rate limit exceeded. Waiting for 61 seconds before retrying...")
+                logger.warning("⚠️ Rate limit exceeded. Waiting for 61 seconds before retrying...")
                 continue  # Retry the request after waiting
             if response.status_code != 200 and response.status_code != 429:
-                print(f"⚠️ Failed to send message. Status code: {response.status_code}. Response: {response.text}")
+                logger.error(f"⚠️ Failed to send message. Status code: {response.status_code}. Response: {response.text}")
                 return {"error": f"Failed to send message. Status code: {response.status_code}"}
         except requests.RequestException as e:
-            print(f"❌ Error sending request: {e}")
+            logger.error(f"❌ Error sending request: {e}")
         time.sleep(delay)  # Wait before the next retry
     return {"error": f"Failed to send message after {max_retries} attempts."}
 
@@ -149,7 +149,7 @@ def masstockdatastore(data):
         'parse_mode': 'Markdown'
         }
     response = send_with_retries(TELEGRAM_SEND_MESSAGE_URL, payload_masstockdatastore)
-    print("Final Response:", response)
+    logger.info("Final Response:", response)
 
 def stockdatastore(data):
     formatted_message = (
@@ -166,7 +166,7 @@ def stockdatastore(data):
         'parse_mode': 'Markdown'
         }
     response = send_with_retries(TELEGRAM_SEND_MESSAGE_URL, payload_stockdatastore)
-    print("Final Response:", response)
+    logger.info("Final Response:", response)
 
 def gnewsstore(data):
     formatted_message = (
@@ -185,7 +185,7 @@ def gnewsstore(data):
     response = requests.post(TELEGRAM_SEND_MESSAGE_URL, data=payload_gnewsstore)
     if response.status_code == 200:
         return "Message sent successfully."
-    else:
+    if response.status_code != 200:
         return f"Failed to send message. Status code: {response.status_code}"
 
 def newsapistore(data):
@@ -230,7 +230,7 @@ def mvetfstore(data):
         'parse_mode': 'Markdown'
         }
     response = send_with_retries(TELEGRAM_SEND_MESSAGE_URL, payload_mveftstore)
-    print("Final Response:", response)
+    logger.info("Final Response:", response)
 
 def etfstore(data):
     formatted_message = (
@@ -249,7 +249,7 @@ def etfstore(data):
         'parse_mode': 'Markdown'
         }
     response = send_with_retries(TELEGRAM_SEND_MESSAGE_URL, payload_eftstore)
-    print("Final Response:", response)
+    logger.info("Final Response:", response)
 
 # === Alert Functions ===
 
@@ -270,7 +270,7 @@ def gitGuardianAlert(source, display_name, message, gitguardian_url):
     response = requests.post(TELEGRAM_SEND_MESSAGE_URL, data=payload_gitguardian)
     if response.status_code == 200:
         return "Message sent successfully."
-    else:
+    if response.status_code != 200:
         return f"Failed to send message. Status code: {response.status_code}"
 
 def bitroidcustomMessage(source, message):
@@ -285,7 +285,7 @@ def bitroidcustomMessage(source, message):
     response = requests.post(TELEGRAM_SEND_MESSAGE_URL, data=payload_bitroidcustomMessage)
     if response.status_code == 200:
         return "Message sent successfully."
-    else:
+    if response.status_code != 200:
         return f"Failed to send message. Status code: {response.status_code}"
 
 def customMessage(source, message):
@@ -303,7 +303,7 @@ def customMessage(source, message):
     response = requests.post(TELEGRAM_SEND_MESSAGE_URL, data=payload_gitguardian)
     if response.status_code == 200:
         return "Message sent successfully."
-    else:
+    if response.status_code != 200:
         return f"Failed to send message. Status code: {response.status_code}"
 
 def newsAlert(source, message):
@@ -324,5 +324,43 @@ def newsAlert(source, message):
     response = requests.post(TELEGRAM_SEND_MESSAGE_URL, data=payload_custom)
     if response.status_code == 200:
         return "Message sent successfully."
-    else:
+    if response.status_code != 200:
         return f"Failed to send message. Status code: {response.status_code}"
+
+def redis_to_telegram_data_alert(data_list):
+    if not data_list:
+        return "No data to send."
+    
+    # Send initial greeting
+    greeting_payload = {
+        'chat_id': CHAT_ID,
+        'text': "Hello Priya and Hemanth",
+        'parse_mode': 'Markdown'
+    }
+    requests.post(TELEGRAM_SEND_MESSAGE_URL, data=greeting_payload)
+    
+    # Send each item separately
+    response = None
+    for item in data_list:
+        msg = item.get("message", "No Message")
+        redis_telegram_payload_custom = {
+            'chat_id': CHAT_ID,
+            'text': msg,
+            'parse_mode': 'Markdown'
+        }
+        response = send_with_retries(TELEGRAM_SEND_MESSAGE_URL, redis_telegram_payload_custom)
+        
+    if isinstance(response, dict):
+        if "error" not in response:
+            return "Messages sent successfully."
+        else:
+            error_msg = response.get("error", "Unknown error")
+            logger.debug(f"Debug [redis_to_telegram_data_alert]: Failed sending messages. Last response: {response}")
+            return f"Finished sending messages. Last error: {error_msg}"
+    elif response is None:
+        return "No messages were processed."
+    else:
+        # Fallback if somehow it's not a dict
+        logger.debug(f"Debug [redis_to_telegram_data_alert]: Unexpected response type {type(response)}: {response}")
+        return "Finished sending messages. Unexpected response format."
+

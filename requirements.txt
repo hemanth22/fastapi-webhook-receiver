@@ -6,3 +6,7 @@ asyncpg
 jinja2
 requests
 httpx
+redis
+psycopg2-binary
+pytz
+certifi
