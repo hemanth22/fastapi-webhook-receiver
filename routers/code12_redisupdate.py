@@ -119,16 +119,16 @@ def update_redis(data):
             messages_json = json.dumps(data)
             
             # Store in Redis
-            redis_client.delete('remainder_ifttt')
-            logger.info("Deleted 'remainder_ifttt' key from Redis.")
-            logger.debug(f"Verify purge: {redis_client.get('remainder_ifttt')}")
+            redis_client.delete('remainder_messages')
+            logger.info("Deleted 'remainder_messages' key from Redis.")
+            logger.debug(f"Verify purge: {redis_client.get('remainder_messages')}")
             logger.debug(f"Data to be stored in Redis: {messages_json}")
-            redis_client.set('remainder_ifttt', messages_json)
-            logger.info("Successfully updated 'remainder_ifttt' key in Redis.")
-            logger.debug(f"Verify update: {redis_client.get('remainder_ifttt')}")
+            redis_client.set('remainder_messages', messages_json)
+            logger.info("Successfully updated 'remainder_messages' key in Redis.")
+            logger.debug(f"Verify update: {redis_client.get('remainder_messages')}")
         else:
             logger.info("Data is empty or None. Clearing Redis key.")
-            redis_client.delete('remainder_ifttt')
+            redis_client.delete('remainder_messages')
             
     except redis.ConnectionError as e:
         logger.error(f"Redis connection error: {e}")

@@ -11,7 +11,8 @@ from routers import (
     code8_telegram_ad,
     code9_telegram_link,
     code10_gallery,
-    code11_form
+    code11_form,
+    code13_telegram_message
 )
 
 app = FastAPI()
@@ -28,6 +29,7 @@ app.include_router(code8_telegram_ad.router)
 app.include_router(code9_telegram_link.router)
 app.include_router(code10_gallery.router)
 app.include_router(code11_form.router)
+app.include_router(code13_telegram_message.router)
 
 # Optional: Mount static files if needed (not explicitly used in previous main.py but imported)
 # app.mount("/static", StaticFiles(directory="static"), name="static")

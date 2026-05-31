@@ -185,7 +185,7 @@ def gnewsstore(data):
     response = requests.post(TELEGRAM_SEND_MESSAGE_URL, data=payload_gnewsstore)
     if response.status_code == 200:
         return "Message sent successfully."
-    else:
+    if response.status_code != 200:
         return f"Failed to send message. Status code: {response.status_code}"
 
 def newsapistore(data):
@@ -270,7 +270,7 @@ def gitGuardianAlert(source, display_name, message, gitguardian_url):
     response = requests.post(TELEGRAM_SEND_MESSAGE_URL, data=payload_gitguardian)
     if response.status_code == 200:
         return "Message sent successfully."
-    else:
+    if response.status_code != 200:
         return f"Failed to send message. Status code: {response.status_code}"
 
 def bitroidcustomMessage(source, message):
@@ -285,7 +285,7 @@ def bitroidcustomMessage(source, message):
     response = requests.post(TELEGRAM_SEND_MESSAGE_URL, data=payload_bitroidcustomMessage)
     if response.status_code == 200:
         return "Message sent successfully."
-    else:
+    if response.status_code != 200:
         return f"Failed to send message. Status code: {response.status_code}"
 
 def customMessage(source, message):
@@ -303,7 +303,7 @@ def customMessage(source, message):
     response = requests.post(TELEGRAM_SEND_MESSAGE_URL, data=payload_gitguardian)
     if response.status_code == 200:
         return "Message sent successfully."
-    else:
+    if response.status_code != 200:
         return f"Failed to send message. Status code: {response.status_code}"
 
 def newsAlert(source, message):
@@ -324,5 +324,43 @@ def newsAlert(source, message):
     response = requests.post(TELEGRAM_SEND_MESSAGE_URL, data=payload_custom)
     if response.status_code == 200:
         return "Message sent successfully."
-    else:
+    if response.status_code != 200:
         return f"Failed to send message. Status code: {response.status_code}"
+
+def redistotelegramDataAlert(source, data_list):
+    if not data_list:
+        return "No data to send."
+    
+    # Send initial greeting
+    greeting_payload = {
+        'chat_id': CHAT_ID,
+        'text': "Hello Priya and Hemanth",
+        'parse_mode': 'Markdown'
+    }
+    requests.post(TELEGRAM_SEND_MESSAGE_URL, data=greeting_payload)
+    
+    # Send each item separately
+    response = None
+    for item in data_list:
+        msg = item.get("message", "No Message")
+        redis_telegram_payload_custom = {
+            'chat_id': CHAT_ID,
+            'text': msg,
+            'parse_mode': 'Markdown'
+        }
+        response = send_with_retries(TELEGRAM_SEND_MESSAGE_URL, redis_telegram_payload_custom)
+        
+    if isinstance(response, dict):
+        if "error" not in response:
+            return "Messages sent successfully."
+        else:
+            error_msg = response.get("error", "Unknown error")
+            print(f"Debug [redistotelegramDataAlert]: Failed sending messages. Last response: {response}")
+            return f"Finished sending messages. Last error: {error_msg}"
+    elif response is None:
+        return "No messages were processed."
+    else:
+        # Fallback if somehow it's not a dict
+        print(f"Debug [redistotelegramDataAlert]: Unexpected response type {type(response)}: {response}")
+        return f"Finished sending messages. Unexpected response format."
+
