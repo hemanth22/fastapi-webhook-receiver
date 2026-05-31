@@ -1,8 +1,14 @@
 {
-  "functions": {
-    "api/**": {
-      "excludeFiles": "node_modules/**"
+  "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python"
     }
-  },
-  "buildCommand": "pip install -r requirements.txt --target /tmp/deps"
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "main.py"
+    }
+  ]
 }
