@@ -3,7 +3,7 @@ import json
 import logging
 from nsepython import nsefetch
 import os
-import psycopg2
+import pg8000.dbapi
 from datetime import datetime
 import pytz
 
@@ -197,7 +197,7 @@ def fetch_message_for_date(date_str):
     cursor = None
     try:
         # Connect to the PostgreSQL database
-        connection = psycopg2.connect(database=postgres_database, user=postgres_username, password=postgres_password, host=postgres_hostname, port=postgres_port)
+        connection = pg8000.dbapi.connect(database=postgres_database, user=postgres_username, password=postgres_password, host=postgres_hostname, port=int(postgres_port) if postgres_port else 5432)
         cursor = connection.cursor()
 
         # Define the query with parameterized inputs
@@ -217,7 +217,7 @@ def fetch_message_for_date(date_str):
         else:
             return ["No messages found for this date."]
 
-    except (Exception, psycopg2.Error) as error:
+    except (Exception, pg8000.dbapi.Error) as error:
         return [f"Error while connecting to PostgreSQL: {error}"]
 
     finally:
@@ -255,8 +255,12 @@ postgres_password = os.environ.get('postgres_password')
 bot_token = os.environ.get('Priyoid_bot')
 
 # Establishing the connection
-conn = psycopg2.connect(
-   database=postgres_database, user=postgres_username, password=postgres_password, host=postgres_hostname, port=postgres_port
+conn = pg8000.dbapi.connect(
+    database=postgres_database, 
+    user=postgres_username, 
+    password=postgres_password, 
+    host=postgres_hostname, 
+    port=int(postgres_port) if postgres_port else 5432
 )
 # Creating a cursor object using the cursor() method
 cursor = conn.cursor()

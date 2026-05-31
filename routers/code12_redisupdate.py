@@ -1,6 +1,6 @@
 import redis
 import os
-import psycopg2
+import pg8000.dbapi
 import logging
 import sys
 import json
@@ -36,15 +36,15 @@ redis_client = redis.StrictRedis(
 
 def get_db_connection():
     try:
-        connection = psycopg2.connect(
+        connection = pg8000.dbapi.connect(
             host=POSTGRES_HOST,
             database=POSTGRES_DB,
             user=POSTGRES_USER,
             password=POSTGRES_PASSWORD,
-            port=POSTGRES_PORT
+            port=int(POSTGRES_PORT) if POSTGRES_PORT else 5432
         )
         return connection
-    except psycopg2.Error as e:
+    except pg8000.dbapi.Error as e:
         logger.error(f"Error connecting to PostgreSQL: {e}")
         return None
 
